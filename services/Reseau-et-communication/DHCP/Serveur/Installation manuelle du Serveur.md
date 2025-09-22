@@ -22,12 +22,6 @@ Ce projet permet de déployer un serveur DHCP qui attribue automatiquement des a
 ## 📥 Installation
 
 ### 1. Mise à jour des paquets
-```bash
-sudo apt update
-
-## 📥 Installation
-
-### 1. Mise à jour des paquets
 
 bash
 sudo apt update
@@ -102,17 +96,27 @@ sudo journalctl -u isc-dhcp-server -f
 
 bash
 sudo dhcpd -t
-📊 Commandes Utiles
+
+## 📊 Commandes Utiles
+
 Vérification interface réseau
+
 bash
 ip addr show
+
 Surveillance continue des baux
+
 bash
 tail -f /var/lib/dhcp/dhcpd.leases
+
 Vérification détaillée des erreurs
+
 bash
+
 sudo journalctl -u isc-dhcp-server --no-pager
-⚠️ Notes Importantes
+
+## ⚠️ Notes Importantes
+
 Remplacez eth0 par le nom de votre interface réseau
 
 Adaptez la plage IP 192.168.15.0/24 à votre réseau
@@ -121,14 +125,18 @@ Les modifications nécessitent un redémarrage du service
 
 Vérifiez toujours la syntaxe avec dhcpd -t avant de redémarrer
 
-🔧 Résolution de Problèmes Courants
+## 🔧 Résolution de Problèmes Courants
+
 Service ne démarre pas
+
 bash
 sudo journalctl -u isc-dhcp-server -n 50
 Test de configuration
+
 bash
 sudo dhcpd -t -cf /etc/dhcp/dhcpd.conf
 Réinitialisation des baux
+
 bash
 sudo rm /var/lib/dhcp/dhcpd.leases*
 sudo touch /var/lib/dhcp/dhcpd.leases
