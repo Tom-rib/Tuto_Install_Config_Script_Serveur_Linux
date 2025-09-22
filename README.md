@@ -24,7 +24,7 @@ Ce projet fournit un mémo complet pour installer, configurer et tester les prin
 ### Réseau et communication
 
 * [DHCP](./services/Reseau-et-communication/DHCP) – Attribution automatique d’adresses IP, installation, configuration serveur/client, tests et scripts.
-* [DNS (Bind9)](./services/Reseau-et-communication/DNS_Bind9/README.md) – Résolution de noms, installation, configuration serveur/client, tests et scripts.
+* [DNS (Bind9)](./services/Reseau-et-communication/DNS_Bind9) – Résolution de noms, installation, configuration serveur/client, tests et scripts.
 * [VPN (OpenVPN / WireGuard)](./services/Reseau-et-communication/VPN_OpenVPN-WireGuard/README.md) – Réseau privé sécurisé, installation, configuration serveur/client, tests et scripts.
 * [SSH](./services/Reseau-et-communication/SSH/README.md) – Connexion sécurisée, installation, configuration, tests et scripts.
 * [FTP / SFTP](./services/Reseau-et-communication/FTP-SFTP/README.md) – Transfert de fichiers, installation, configuration, tests et scripts.

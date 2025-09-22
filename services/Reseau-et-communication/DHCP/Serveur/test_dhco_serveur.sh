@@ -1,5 +1,10 @@
 #!/bin/bash
 # Script de test serveur DHCP
+# Usage: sudo nano test_dhcp_serveur.sh [interface]
+#        chmod +x test_dhcp_serveur.sh
+#        ./test_dhcp_serveur.sh eth0
+
+
 
 echo "[TEST] Vérification du statut du serveur DHCP..."
 systemctl status isc-dhcp-server | head -n 20
