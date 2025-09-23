@@ -8,7 +8,7 @@
 #
 # Exécuter le script : sudo ./dhcp_client.sh
 
-INTERFACE=${1:-eth0}
+INTERFACE=${1:-ens33}
 
 echo "[INFO] Mise à jour des paquets..."
 sudo apt update

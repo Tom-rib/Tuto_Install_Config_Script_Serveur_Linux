@@ -1,6 +1,14 @@
 #!/bin/bash
+# Pour installer un serveur DHCP sur une interface spécifique avec des paramètres personnalisés
+# Crée me script et lui donner les droits:                                                   
+#     sudo nano dhcp_serveur.sh      
+#     sudo chmod +x dhcp_serveur.sh
+#     Usage: ./dhcp_serveur.sh
+# Pour utiliser le ssh   
 # Script d'installation serveur DHCP
-INTERFACE=${1:-eth0}
+
+
+INTERFACE=${1:-ens33}
 SUBNET=${2:-192.168.15.0}
 NETMASK=${3:-255.255.255.0}
 RANGE_START=${4:-192.168.15.100}

@@ -19,43 +19,47 @@ Ce projet fournit un mémo complet pour installer, configurer et tester les prin
 | MySQL / MariaDB / LDAP / autres      | admin             | AdminPass123!     |
 
 
+Domaine: tutoserveurs.local
+
+IP_serveur1   192.168.136.
+
 ## Sommaire avec liens vers chaque service
 
 ### Réseau et communication
 
 * [DHCP](./services/Reseau-et-communication/DHCP) – Attribution automatique d’adresses IP, installation, configuration serveur/client, tests et scripts.
 * [DNS (Bind9)](./services/Reseau-et-communication/DNS_Bind9) – Résolution de noms, installation, configuration serveur/client, tests et scripts.
-* [VPN (OpenVPN / WireGuard)](./services/Reseau-et-communication/VPN_OpenVPN-WireGuard/README.md) – Réseau privé sécurisé, installation, configuration serveur/client, tests et scripts.
-* [SSH](./services/Reseau-et-communication/SSH/README.md) – Connexion sécurisée, installation, configuration, tests et scripts.
-* [FTP / SFTP](./services/Reseau-et-communication/FTP-SFTP/README.md) – Transfert de fichiers, installation, configuration, tests et scripts.
-* [Bastion / Guacamole](./services/Reseau-et-communication/Bastion-Guacamole/README.md) – Accès centralisé et sécurisé aux machines, installation, configuration, tests et scripts.
+* [VPN (OpenVPN / WireGuard)](./services/Reseau-et-communication/VPN_OpenVPN-WireGuard) – Réseau privé sécurisé, installation, configuration serveur/client, tests et scripts.
+* [SSH](./services/Reseau-et-communication/SSH/) – Connexion sécurisée, installation, configuration, tests et scripts.
+* [FTP / SFTP](./services/Reseau-et-communication/FTP-SFTP) – Transfert de fichiers, installation, configuration, tests et scripts.
+* [Bastion / Guacamole](./services/Reseau-et-communication/Bastion-Guacamole) – Accès centralisé et sécurisé aux machines, installation, configuration, tests et scripts.
 
 ### Stockage
 
-* [Samba](./services/Stockage/Samba/README.md) – Partage fichiers Windows/Linux, installation, configuration, tests et scripts.
-* [NFS](./services/Stockage/NFS/README.md) – Partage fichiers Linux, installation, configuration, tests et scripts.
-* [RAID (mdadm)](./services/Stockage/RAID_mdadm/README.md) – Redondance et performance disque, installation, configuration, tests et scripts.
-* [TrueNAS / NAS](./services/Stockage/TrueNAS-NAS/README.md) – Gestion centralisée du stockage, installation, configuration, tests et scripts.
+* [Samba](./services/Stockage/Samba) – Partage fichiers Windows/Linux, installation, configuration, tests et scripts.
+* [NFS](./services/Stockage/NFS) – Partage fichiers Linux, installation, configuration, tests et scripts.
+* [RAID (mdadm)](./services/Stockage/RAID_mdadm) – Redondance et performance disque, installation, configuration, tests et scripts.
+* [TrueNAS / NAS](./services/Stockage/TrueNAS-NAS) – Gestion centralisée du stockage, installation, configuration, tests et scripts.
 
 ### Web et applicatif
 
-* [Serveur Web Apache](./services/Web-et-applicatif/Web_Apache/README.md) – Hébergement de sites web, installation, configuration, tests et scripts.
-* [Serveur Web Nginx](./services/Web-et-applicatif/Web_Nginx/README.md) – Hébergement de sites web, installation, configuration, tests et scripts.
-* [Reverse Proxy (Nginx / HAProxy)](./services/Web-et-applicatif/ReverseProxy_Nginx-HAProxy/README.md) – Distribution de trafic web, installation, configuration, tests et scripts.
-* [Base de données MySQL (Oracle)](./services/Web-et-applicatif/BDD_MySQL_Oracle/README.md) – Stockage structuré, installation, configuration, tests et scripts.
-* [Base de données MariaDB](./services/Web-et-applicatif/BDD_MySQL_MariaDB/README.md) – Stockage structuré, installation, configuration, tests et scripts.
-* [LDAP (OpenLDAP / FreeIPA)](./services/Web-et-applicatif/LDAP_OpenLDAP-FreeIPA/README.md) – Gestion centralisée des utilisateurs, installation, configuration, tests et scripts.
+* [Serveur Web Apache](./services/Web-et-applicatif/Web_Apache) – Hébergement de sites web, installation, configuration, tests et scripts.
+* [Serveur Web Nginx](./services/Web-et-applicatif/Web_Nginx) – Hébergement de sites web, installation, configuration, tests et scripts.
+* [Reverse Proxy (Nginx / HAProxy)](./services/Web-et-applicatif/ReverseProxy_Nginx-HAProxy) – Distribution de trafic web, installation, configuration, tests et scripts.
+* [Base de données MySQL (Oracle)](./services/Web-et-applicatif/BDD_MySQL_Oracle) – Stockage structuré, installation, configuration, tests et scripts.
+* [Base de données MariaDB](./services/Web-et-applicatif/BDD_MySQL_MariaDB) – Stockage structuré, installation, configuration, tests et scripts.
+* [LDAP (OpenLDAP / FreeIPA)](./services/Web-et-applicatif/LDAP_OpenLDAP-FreeIPA) – Gestion centralisée des utilisateurs, installation, configuration, tests et scripts.
 
 ### Communication
 
-* [VOIP / Asterisk](./services/Communication/VOIP_Asterisk/README.md) – Téléphonie IP, installation, configuration, tests et scripts.
-* [Messagerie / Mail (Postfix / Dovecot)](./services/Communication/Mail_Postfix-Dovecot/README.md) – Serveur mail, installation, configuration, tests et scripts.
+* [VOIP / Asterisk](./services/Communication/VOIP_Asterisk) – Téléphonie IP, installation, configuration, tests et scripts.
+* [Messagerie / Mail (Postfix / Dovecot)](./services/Communication/Mail_Postfix-Dovecot) – Serveur mail, installation, configuration, tests et scripts.
 
 ### Supervision et sécurité
 
-* [Firewall (nftables / iptables)](./services/Supervision-et-securite/Firewall_nftables-iptables/README.md) – Sécurisation du réseau, installation, configuration, tests et scripts.
-* [Fail2Ban](./services/Supervision-et-securite/Fail2Ban/README.md) – Protection contre les intrusions, installation, configuration, tests et scripts.
-* [Supervision (Nagios / Zabbix / Prometheus)](./services/Supervision-et-securite/Supervision_Nagios-Zabbix-Prometheus/README.md) – Supervision réseau et services, installation, configuration, tests et scripts.
+* [Firewall (nftables / iptables)](./services/Supervision-et-securite/Firewall_nftables-iptables) – Sécurisation du réseau, installation, configuration, tests et scripts.
+* [Fail2Ban](./services/Supervision-et-securite/Fail2Ban) – Protection contre les intrusions, installation, configuration, tests et scripts.
+* [Supervision (Nagios / Zabbix / Prometheus)](./services/Supervision-et-securite/Supervision_Nagios-Zabbix-Prometheus) – Supervision réseau et services, installation, configuration, tests et scripts.
 
 ---
 
