@@ -18,10 +18,12 @@ Ce projet fournit un mémo complet pour installer, configurer et tester les prin
 |--------------------------------------|-------------------|-------------------|
 | MySQL / MariaDB / LDAP / autres      | admin             | AdminPass123!     |
 
+## 3️⃣ IP , Domaine
 
 Domaine: tutoserveurs.local
 
-IP_serveur1   192.168.136.
+IP_serveur1   192.168.136.139
+IP_Client1    192.168.136.140
 
 ## Sommaire avec liens vers chaque service
 
