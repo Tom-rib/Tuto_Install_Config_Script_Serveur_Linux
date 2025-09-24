@@ -1,128 +1,153 @@
 #!/bin/bash
-# ==================================================
-# Script FTP/SFTP interactif
-# Installation serveur/client + tests séparés
-# ==================================================
+# ==============================================
+# Script interactif d'installation DHCP
+# Serveur / Client / Test / Désinstallation
+# Gère 1 ou 2 interfaces (LAN/WAN ou LAN/LAN)
+# ==============================================
 
-set -e
+# Vérifier si sudo est utilisé
+if [ "$EUID" -ne 0 ]; then
+    echo "[ERREUR] Ce script doit être lancé avec sudo !"
+    exit 1
+fi
 
-# ---------------------------
-# Variables par défaut
-# ---------------------------
-DEFAULT_FTP_USER=ftpuser
-DEFAULT_FTP_PASS=TutoPass123!
-DEFAULT_FTP_DIR=
-DEFAULT_SERVER_IP=192.168.136.10
-DEFAULT_REMOTE_USER=ftpuser
-
-# ---------------------------
+# ==============================
 # Fonctions
-# ---------------------------
-install_server() {
-    read -p "Nom de l'utilisateur FTP à créer [${DEFAULT_FTP_USER}] : " FTP_USER
-    FTP_USER=${FTP_USER:-$DEFAULT_FTP_USER}
+# ==============================
 
-    read -sp "Mot de passe pour $FTP_USER [${DEFAULT_FTP_PASS}] : " FTP_PASS_INPUT
-    echo
-    FTP_PASS=${FTP_PASS_INPUT:-$DEFAULT_FTP_PASS}
+installer_serveur() {
+    echo "[INFO] Installation du serveur DHCP..."
+    apt update && apt install -y isc-dhcp-server netfilter-persistent iptables-persistent
 
-    read -p "Répertoire FTP [par défaut /home/$FTP_USER/ftp] : " FTP_DIR_INPUT
-    FTP_DIR=${FTP_DIR_INPUT:-/home/$FTP_USER/ftp}
+    echo "[CONFIG] Interface LAN principale :"
+    read -p "Nom interface LAN (ex: ens33) : " LAN_IF
 
-    echo "[INFO] Installation serveur FTP (vsftpd)..."
-    sudo apt update
-    sudo apt install -y vsftpd
+    echo "[CONFIG] Base réseau (ex: 192.168.136) :"
+    read -p "Base IP (sans le dernier octet, ex: 192.168.136) : " BASE_IP
 
-    echo "[INFO] Configuration serveur FTP..."
-    sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.bak
-    sudo sed -i 's/#write_enable=YES/write_enable=YES/' /etc/vsftpd.conf
-    sudo sed -i 's/#chroot_local_user=YES/chroot_local_user=YES/' /etc/vsftpd.conf
+    read -p "Dernier octet routeur (ex: 254) : " ROUTER_X
+    ROUTER_IP="$BASE_IP.$ROUTER_X"
 
-    sudo systemctl restart vsftpd
-    sudo systemctl enable vsftpd
+    read -p "Début de plage DHCP (ex: 100) : " RANGE_START_X
+    RANGE_START="$BASE_IP.$RANGE_START_X"
 
-    # Création utilisateur FTP
-    if ! id -u "$FTP_USER" >/dev/null 2>&1; then
-        sudo useradd -m "$FTP_USER" -s /bin/bash
-        echo "$FTP_USER:$FTP_PASS" | sudo chpasswd
+    read -p "Fin de plage DHCP (ex: 200) : " RANGE_END_X
+    RANGE_END="$BASE_IP.$RANGE_END_X"
+
+    echo "[CONFIG] Serveur DNS local :"
+    read -p "Adresse IP du DNS (ex: $ROUTER_IP ou autre) : " DNS_IP
+
+    read -p "Nom de domaine (ex: tutoserveurs.local) : " DOMAIN
+
+    # Config interface DHCP
+    sed -i "s|^INTERFACESv4=.*|INTERFACESv4=\"$LAN_IF\"|" /etc/default/isc-dhcp-server
+
+    # Config DHCP
+    cat > /etc/dhcp/dhcpd.conf <<EOL
+default-lease-time 600;
+max-lease-time 7200;
+authoritative;
+
+subnet $BASE_IP.0 netmask 255.255.255.0 {
+    range $RANGE_START $RANGE_END;
+    option routers $ROUTER_IP;
+    option domain-name-servers $DNS_IP;
+    option domain-name "$DOMAIN";
+}
+EOL
+
+    echo "[INFO] Voulez-vous configurer une deuxième interface ? (y/n)"
+    read CHOIX2
+    if [ "$CHOIX2" == "y" ]; then
+        read -p "Nom interface secondaire : " SEC_IF
+        echo "[TYPE] Cette interface est WAN ou LAN ?"
+        read -p "(wan/lan) : " TYPE_IF
+
+        if [ "$TYPE_IF" == "wan" ]; then
+            echo "[INFO] Configuration WAN + NAT"
+            echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+
+            # Activer forwarding
+            sed -i "s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/" /etc/sysctl.conf
+            sysctl -p
+
+            # NAT
+            iptables -t nat -A POSTROUTING -o $SEC_IF -j MASQUERADE
+            netfilter-persistent save
+
+        elif [ "$TYPE_IF" == "lan" ]; then
+            echo "[CONFIG] Base réseau secondaire (ex: 192.168.137) :"
+            read -p "Base IP LAN2 : " BASE_IP2
+            read -p "Dernier octet routeur LAN2 (ex: 254) : " ROUTER2_X
+            ROUTER2_IP="$BASE_IP2.$ROUTER2_X"
+            read -p "Début de plage DHCP LAN2 (ex: 50) : " RANGE2_START_X
+            RANGE2_START="$BASE_IP2.$RANGE2_START_X"
+            read -p "Fin de plage DHCP LAN2 (ex: 150) : " RANGE2_END_X
+            RANGE2_END="$BASE_IP2.$RANGE2_END_X"
+
+            cat >> /etc/dhcp/dhcpd.conf <<EOL
+
+subnet $BASE_IP2.0 netmask 255.255.255.0 {
+    range $RANGE2_START $RANGE2_END;
+    option routers $ROUTER2_IP;
+    option domain-name-servers $DNS_IP;
+    option domain-name "$DOMAIN";
+}
+EOL
+        fi
     fi
 
-    # Création répertoire FTP et permissions
-    sudo mkdir -p "$FTP_DIR"
-    sudo chown -R "$FTP_USER:$FTP_USER" "$FTP_DIR"
-    sudo chmod 755 "$FTP_DIR"
-
-    echo "[INFO] Serveur FTP installé et configuré pour l'utilisateur $FTP_USER."
+    systemctl enable isc-dhcp-server
+    systemctl restart isc-dhcp-server
+    echo "[OK] Serveur DHCP configuré et démarré."
+    systemctl status isc-dhcp-server | head -n 10
 }
 
-install_client() {
-    echo "[INFO] Installation client FTP/SFTP..."
-    sudo apt update
-    sudo apt install -y ftp openssh-client
-    echo "[INFO] Client FTP/SFTP installé."
+installer_client() {
+    echo "[INFO] Installation du client DHCP..."
+    apt update && apt install -y isc-dhcp-client
+    read -p "Nom interface client (ex: eth0) : " CLIENT_IF
+    dhclient -v $CLIENT_IF
 }
 
-test_ftp() {
-    read -p "Entrez l'IP du serveur FTP à tester [${DEFAULT_SERVER_IP}] : " SERVER_IP
-    SERVER_IP=${SERVER_IP:-$DEFAULT_SERVER_IP}
-    read -p "Utilisateur distant pour FTP [${DEFAULT_REMOTE_USER}] : " REMOTE_USER
-    REMOTE_USER=${REMOTE_USER:-$DEFAULT_REMOTE_USER}
-    read -sp "Mot de passe pour $REMOTE_USER : " REMOTE_PASS
-    echo
-
-    echo "[TEST] Connexion FTP au serveur $SERVER_IP avec l'utilisateur $REMOTE_USER..."
-    ftp -inv $SERVER_IP <<EOF
-user $REMOTE_USER $REMOTE_PASS
-ls
-bye
-EOF
+tester_dhcp() {
+    echo "[INFO] Test DHCP..."
+    read -p "Interface à tester (ex: eth0) : " TEST_IF
+    ip addr show $TEST_IF
+    dhclient -v $TEST_IF
+    ip addr show $TEST_IF
+    echo "[INFO] Derniers baux DHCP :"
+    tail -n 10 /var/lib/dhcp/dhclient.leases
 }
 
-test_sftp() {
-    read -p "Entrez l'IP du serveur SFTP à tester [${DEFAULT_SERVER_IP}] : " SERVER_IP
-    SERVER_IP=${SERVER_IP:-$DEFAULT_SERVER_IP}
-    read -p "Utilisateur distant pour SFTP [${DEFAULT_REMOTE_USER}] : " REMOTE_USER
-    REMOTE_USER=${REMOTE_USER:-$DEFAULT_REMOTE_USER}
-
-    echo "[TEST] Connexion SFTP au serveur $SERVER_IP avec l'utilisateur $REMOTE_USER..."
-    sftp $REMOTE_USER@$SERVER_IP <<EOF
-ls
-bye
-EOF
+desinstaller_dhcp() {
+    echo "[INFO] Suppression DHCP serveur + client..."
+    apt remove -y isc-dhcp-server isc-dhcp-client
+    apt autoremove -y
 }
 
-# ---------------------------
-# Menu interactif
-# ---------------------------
-echo "===== Script FTP/SFTP interactif ====="
-echo "1) Installer serveur FTP/SFTP"
-echo "2) Installer client FTP/SFTP"
-echo "3) Installer serveur + client"
-echo "4) Tester FTP"
-echo "5) Tester SFTP"
-read -p "Choix : " CHOICE
+# ==============================
+# Menu principal
+# ==============================
 
-case "$CHOICE" in
-    1)
-        install_server
-        ;;
-    2)
-        install_client
-        ;;
-    3)
-        install_server
-        install_client
-        ;;
-    4)
-        test_ftp
-        ;;
-    5)
-        test_sftp
-        ;;
-    *)
-        echo "[ERROR] Choix invalide."
-        exit 1
-        ;;
-esac
+while true; do
+    echo "=============================="
+    echo "    SCRIPT DHCP INTERACTIF"
+    echo "=============================="
+    echo "1) Installer serveur DHCP"
+    echo "2) Installer client DHCP"
+    echo "3) Tester DHCP"
+    echo "4) Désinstaller DHCP"
+    echo "0) Quitter"
+    echo "=============================="
+    read -p "Choix : " CHOIX
 
-echo "[INFO] Script terminé."
+    case $CHOIX in
+        1) installer_serveur ;;
+        2) installer_client ;;
+        3) tester_dhcp ;;
+        4) desinstaller_dhcp ;;
+        0) exit 0 ;;
+        *) echo "[ERREUR] Choix invalide !" ;;
+    esac
+done
